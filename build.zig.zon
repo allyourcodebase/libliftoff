@@ -1,0 +1,17 @@
+.{
+    .name = .libliftoff,
+    .version = "0.5.0",
+    .dependencies = .{
+        .libdrm = .{
+            .url = "https://github.com/allyourcodebase/libdrm/archive/refs/tags/v2.4.131.tar.gz",
+            .hash = "libdrm-2.4.131-J31yV1seAACDMd23VpNJpqZj4mdzgJKpHFtorUdZIxxR",
+        },
+        .upstream = .{
+            .url = "https://gitlab.freedesktop.org/emersion/libliftoff/-/archive/v0.5.0/libliftoff-v0.5.0.tar.gz",
+            .hash = "N-V-__8AAEjbAgCuPNCj_EGXAOHAsZcowvxh2aYGpvmVEP8m",
+        },
+    },
+    .minimum_zig_version = "0.16.0-dev.2653+784e89fd4",
+    .paths = .{ "build.zig", "build.zig.zon", "README.md", "LICENSE" },
+    .fingerprint = 0xf6055c5924a5810,
+}
