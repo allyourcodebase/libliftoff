@@ -4,9 +4,10 @@
     .dependencies = .{
         .libdrm = .{
             .url = "https://github.com/allyourcodebase/libdrm/archive/refs/tags/v2.4.131.tar.gz",
-            .hash = "libdrm-2.4.131-J31yV1seAACDMd23VpNJpqZj4mdzgJKpHFtorUdZIxxR",
+            .hash = "libdrm-2.4.131-J31yV3AgAADybDJfQliVP46aB46wuFlXt571bcLVvhNF",
+            .lazy = true,
         },
-        .upstream = .{
+        .libliftoff_c = .{
             .url = "https://gitlab.freedesktop.org/emersion/libliftoff/-/archive/v0.5.0/libliftoff-v0.5.0.tar.gz",
             .hash = "N-V-__8AAEjbAgCuPNCj_EGXAOHAsZcowvxh2aYGpvmVEP8m",
         },

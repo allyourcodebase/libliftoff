@@ -1,25 +1,59 @@
 const std = @import("std");
+const LinkMode = std.builtin.LinkMode;
 
-pub fn build(b: *std.Build) void {
+const manifest = @import("build.zig.zon");
+
+pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    const linkage = b.option(std.builtin.LinkMode, "linkage", "Library linkage type") orelse .static;
 
-    const upstream = b.dependency("upstream", .{});
-    const libdrm_dep = b.dependency("libdrm", .{ .target = target, .optimize = optimize });
-    const src = upstream.path("");
+    const options = .{
+        .linkage = b.option(LinkMode, "linkage", "Library linkage type") orelse
+            .static,
+    };
 
-    const mod = b.createModule(.{ .target = target, .optimize = optimize, .link_libc = true });
-    mod.addIncludePath(src.path(b, "include"));
-    mod.linkLibrary(libdrm_dep.artifact("drm"));
-    mod.addCSourceFiles(.{ .root = src, .files = sources, .flags = &.{ "-fvisibility=hidden", "-std=c11" } });
+    const deps = .{
+        .libdrm = if (!b.systemIntegrationOption("libdrm", .{}))
+            b.lazyDependency("libdrm", .{ .target = target, .optimize = optimize })
+        else
+            null,
+    };
 
-    const lib = b.addLibrary(.{ .name = "liftoff", .root_module = mod, .linkage = linkage });
-    lib.installHeader(src.path(b, "include/libliftoff.h"), "libliftoff.h");
+    const upstream = b.dependency("libliftoff_c", .{});
+
+    const mod = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    mod.addIncludePath(upstream.path("include"));
+
+    if (deps.libdrm) |dep|
+        mod.linkLibrary(dep.artifact("drm"))
+    else
+        mod.linkSystemLibrary("libdrm", .{});
+
+    mod.addCSourceFiles(.{
+        .root = upstream.path(""),
+        .files = srcs,
+        .flags = flags,
+    });
+
+    const lib = b.addLibrary(.{
+        .name = "liftoff",
+        .root_module = mod,
+        .linkage = options.linkage,
+        .version = try .parse(manifest.version),
+    });
+
+    lib.installHeader(upstream.path("include/libliftoff.h"), "libliftoff.h");
     b.installArtifact(lib);
 }
 
-const sources: []const []const u8 = &.{
+const flags: []const []const u8 = &.{ "-fvisibility=hidden", "-std=c11" };
+
+const srcs: []const []const u8 = &.{
     "alloc.c", "device.c", "layer.c", "list.c",
     "log.c",   "output.c", "plane.c",
 };
